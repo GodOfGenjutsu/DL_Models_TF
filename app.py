@@ -55,4 +55,5 @@ def predict():
     return jsonify({"prediction": int(predicted_class[0])})
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=4000)
+    server_port = int(os.environ.get("PORT", 3050))
+    app.run(debug=True, host="0.0.0.0", port=server_port)
