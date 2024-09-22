@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-semibold mb-4">Upload Image for Prediction</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="image" id="image" 
+                   accept="image/png, image/jpeg" 
+                   class="mb-4 p-2 border border-gray-300 rounded w-full" required>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
+        </form>
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#uploadForm').on('submit', function(event) {
+                event.preventDefault();
+                var fileInput = $('#image')[0];
+                var file = fileInput.files[0];
+
+                // Check if a file is selected
+                if (!file) {
+                    $('#result').html('<p class="text-red-500">No file selected.</p>');
+                    return;
+                }
+
+                // Check file type
+                var allowedTypes = ['image/png', 'image/jpeg'];
+                if (!allowedTypes.includes(file.type)) {
+                    $('#result').html('<p class="text-red-500">Invalid file type. Only PNG, JPG, and JPEG are allowed.</p>');
+                    return;
+                }
+
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#result').html('<p class="text-green-500">Prediction: ' + response.prediction + '</p>');
+                    },
+                    error: function() {
+                        $('#result').html('<p class="text-red-500">An error occurred. Please try again.</p>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
