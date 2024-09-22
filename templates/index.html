@@ -41,7 +41,7 @@
 
                 var formData = new FormData(this);
                 $.ajax({
-                    url: '/predict',
+                    url: 'https://deeplearning-live-models.onrender.com/predict',
                     type: 'POST',
                     data: formData,
                     contentType: false,
