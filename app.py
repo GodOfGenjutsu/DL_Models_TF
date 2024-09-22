@@ -24,6 +24,8 @@ def preprocess_image(image):
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
+    
+@app.route("/status", methods=["GET"])  
 def running():
     return jsonify({"status": "server is runnig"}), 200
 # Allowed extensions
