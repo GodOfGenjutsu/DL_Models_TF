@@ -10,7 +10,7 @@ model = tf.keras.models.load_model(model_path)
 
 # Define your Flask app
 app = Flask(__name__)
-
+CORS(app)
 # Image preprocessing pipeline
 def preprocess_image(image):
     # Resize to match model input size and normalize
@@ -24,7 +24,8 @@ def preprocess_image(image):
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
-
+def running():
+    return jsonify({"status": "server is runnig"}), 200
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
