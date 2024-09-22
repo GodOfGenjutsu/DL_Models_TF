@@ -4,6 +4,10 @@ import tensorflow as tf
 import numpy as np
 import io
 from flask_cors import CORS
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 # Load the trained model
 model_path = "./mnist_cnn_model.h5"  # Adjust based on your save format
 model = tf.keras.models.load_model(model_path)
@@ -39,7 +43,9 @@ def allowed_file(filename):
 def predict():
     if "image" not in request.files:
         return jsonify({"error": "No image provided"}), 400
-
+    
+    logging.info("Received a prediction request")
+    
     image_file = request.files["image"]
     
     # Check if the file has an allowed extension
