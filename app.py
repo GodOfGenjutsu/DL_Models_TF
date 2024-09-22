@@ -3,7 +3,7 @@ from PIL import Image
 import tensorflow as tf
 import numpy as np
 import io
-
+from flask_cors import CORS
 # Load the trained model
 model_path = "./mnist_cnn_model.h5"  # Adjust based on your save format
 model = tf.keras.models.load_model(model_path)
