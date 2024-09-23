@@ -5,19 +5,21 @@ import numpy as np
 import io
 from flask_cors import CORS
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 
 # Load the trained model
 model_path = "./mnist_cnn_model.h5"  # Adjust based on your save format
 model = tf.keras.models.load_model(model_path)
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # Define your Flask app
 app = Flask(__name__)
 CORS(app)
+
 # Image preprocessing pipeline
 def preprocess_image(image):
-    # Resize to match model input size and normalize
     image = image.resize((28, 28))
     image = np.array(image) / 255.0  # Scale to [0, 1]
     image = np.expand_dims(image, axis=-1)  # Add channel dimension
@@ -31,7 +33,8 @@ def index():
     
 @app.route("/status", methods=["GET"])  
 def running():
-    return jsonify({"status": "server is runnig"}), 200
+    return jsonify({"status": "server is running"}), 200
+
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -52,16 +55,18 @@ def predict():
     if not allowed_file(image_file.filename):
         return jsonify({"error": "Invalid file type. Only PNG, JPG, and JPEG are allowed."}), 400
 
-    image = Image.open(io.BytesIO(image_file.read())).convert("L")  # Convert to grayscale
+    try:
+        image = Image.open(io.BytesIO(image_file.read())).convert("L")  # Convert to grayscale
+        image_array = preprocess_image(image)
 
-    # Preprocess the image for model input
-    image_array = preprocess_image(image)
+        # Make a prediction
+        predictions = model.predict(image_array)
+        predicted_class = np.argmax(predictions, axis=1)
 
-    # Make a prediction
-    predictions = model.predict(image_array)
-    predicted_class = np.argmax(predictions, axis=1)
-
-    return jsonify({"prediction": int(predicted_class[0])})
+        return jsonify({"prediction": int(predicted_class[0])})
+    except Exception as e:
+        logging.error(f"Error processing the image: {e}")
+        return jsonify({"error": "Error processing the image"}), 500
 
 if __name__ == "__main__":
     server_port = int(os.environ.get("PORT", 3050))
